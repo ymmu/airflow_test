@@ -1,0 +1,25 @@
+create:
+  user: |
+    CREATE TABLE user(
+        id varchar(32) not null,
+        name varchar(32) not null,
+        primary key(id)
+    )ENGINE=INNODB CHARSET=utf8;
+  artist: |
+    CREATE TABLE artist(
+        id varchar(32) not null,
+        name varchar(32) not null,
+        primary key(id)
+    )ENGINE=INNODB CHARSET=utf8;
+  release: |
+    CREATE TABLE release(
+        release_msid varchar(32) not null,
+        name varchar(32) not null,
+        primary key(release_msid)
+    )ENGINE=INNODB CHARSET=utf8;
+  song: |
+    CREATE TABLE song(
+        song_msid varchar(32) not null,
+        track_name varchar(32) not null,
+        primary key(song_msid)
+    )ENGINE=INNODB CHARSET=utf8;
