@@ -1,4 +1,6 @@
+import os
 import pandas as pd
+import vars_
 
 
 def get_data_from_mariadb_v1(num_lines=1,
@@ -49,7 +51,8 @@ def get_data(test=True):
 
     if test:
         try:
-            with open('./test_offset.txt', encoding='utf-8') as f:
+            with open(os.path.join(vars_.dir_path, 'test_offset.txt'),
+                      encoding='utf-8') as f:
                 begin = int(f.readlines()[-1])
         except Exception as e:
             begin = 0
@@ -59,7 +62,7 @@ def get_data(test=True):
         from random import randint
         num_lines = randint(10, 60)  # (raw 데이터 분당 로그양에 기반해서) 랜덤으로 가져올 열
         begin += (int(num_lines)-1)  # offset
-        with open('./test_offset.txt', mode='a', encoding='utf-8') as f:
+        with open(os.path.join(vars_.dir_path,'test_offset.txt'), mode='a', encoding='utf-8') as f:
             f.write(f'{begin}\n')
         return get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
 
@@ -93,7 +96,7 @@ def get_mariadb_conn(database=None):
 
 def get_db_config():
     import yaml
-    with open('../config/config.yml') as f:
+    with open(os.path.join(vars_.dir_path, '../config/config.yml'), mode='r') as f:
         conf = yaml.load(f, Loader=yaml.FullLoader)['mysql']
     return conf
 
