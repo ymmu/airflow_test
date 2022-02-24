@@ -26,8 +26,7 @@ with DAG('lucca_docker_operator_dag',
 
     t1 = BashOperator(
         task_id='print_current_date',
-        bash_command='date'
+        bash_command='./test_venv.py'
     )
-
 
     start_dag >> t1
