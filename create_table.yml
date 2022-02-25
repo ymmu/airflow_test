@@ -1,0 +1,39 @@
+create:
+  user: |
+    CREATE TABLE user(
+        uid INT(10) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        name VARCHAR(64) NOT NULL,
+        fisrt_active_date DATETIME,
+        last_active_date DATETIME
+    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  artist: |
+    CREATE TABLE artist(
+        aid varchar(32) not null,
+        name varchar(32) not null,
+        primary key(id)
+    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;
+  release: |
+    CREATE TABLE release(
+        release_msid varchar(32) not null,
+        name varchar(32) not null,
+        primary key(release_msid)
+    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;
+  song: |
+    CREATE TABLE song(
+        song_msid varchar(32) not null,
+        track_name varchar(32) not null,
+        primary key(song_msid)
+    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;
+  test: |
+    CREATE TABLE listenbrainz(
+        uuid BINARY(16) NOT NULL,
+        listened_at DATETIME not null,
+        user_name varchar(256) not null,
+        artist_name varchar(512) not null,
+        artist_msid varchar(36) not null,
+        release_name varchar(256),
+        release_msid varchar(36),
+        track_name varchar(256) not null,
+        recording_msid varchar(36) not null,
+        primary key(uuid)
+    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_bin;

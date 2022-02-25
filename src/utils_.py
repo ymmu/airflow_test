@@ -51,7 +51,7 @@ def get_data(test=True):
 
     if test:
         try:
-            with open(os.path.join(vars_.dir_path, 'test_offset.txt'),
+            with open(os.path.join(vars_.dir_path, './src/test_offset.txt'),
                       encoding='utf-8') as f:
                 begin = int(f.readlines()[-1])
         except Exception as e:
@@ -61,10 +61,16 @@ def get_data(test=True):
         # 전 작업의 offset을 불러다가 다음 로그를 가져옴
         from random import randint
         num_lines = randint(10, 60)  # (raw 데이터 분당 로그양에 기반해서) 랜덤으로 가져올 열
+        print(begin, num_lines)
+        df = get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
         begin += (int(num_lines)-1)  # offset
-        with open(os.path.join(vars_.dir_path,'test_offset.txt'), mode='a', encoding='utf-8') as f:
+        print(df.shape)
+        with open(os.path.join(vars_.dir_path,'./src/test_offset.txt'), mode='a', encoding='utf-8') as f:
             f.write(f'{begin}\n')
-        return get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
+       
+        print(begin, num_lines)
+        return df
+        #return get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
 
     else:
         # 서버로 돌려서 던지..는건
@@ -96,7 +102,7 @@ def get_mariadb_conn(database=None):
 
 def get_db_config():
     import yaml
-    with open(os.path.join(vars_.dir_path, '../config/config.yml'), mode='r') as f:
+    with open(os.path.join(vars_.dir_path, './config/config.yml'), mode='r') as f:
         conf = yaml.load(f, Loader=yaml.FullLoader)['mysql']
     return conf
 
