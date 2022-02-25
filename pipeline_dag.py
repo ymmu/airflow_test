@@ -1,15 +1,29 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 from datetime import datetime
-import requests
+import requests, sys
 import logging
+#from elt_pipeline.src import utils_
+#from elt_pipeline.src import user
+#import utils_
 
 dag = DAG(
-    dag_id="xcomtest",
-    start_date=datetime(2021, 2, 18),
-    schedule_interval='@minute',
+    dag_id="xcomtest_2",
+    start_date=datetime(2021, 2, 25),
+    #schedule_interval='10 * * * *',
     tags=['pipeline_user_data_test']
 )
+
+print(sys.path)
+sys.path.append('/opt/airflow/dags/elt_pipeline/src')
+
+#cmd_ = '''
+#    export PYTHONPATH=/opt/airflow/dags/elt_pipeline/env/bin:/opt/airflow/dags/elt_pipeline/env/lib/python3.7/site-packages'''
+#t1 = BashOperator(
+#    task_id='add_env',
+#    bash_command=cmd_
+#    )
 
 
 def extract():
@@ -19,7 +33,7 @@ def extract():
 
 exec_extract = PythonOperator(
     task_id='get_rawdata',
-    python_callable=extract, # utils_.get_data,
+    python_callable=extract, #utils_.get_data,
     # params={'url': 'https://s3-geospatial.s3-us-west-2.amazonaws.com/name_gender.csv'},
     provide_context=True,
     dag=dag
