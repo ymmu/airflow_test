@@ -50,11 +50,13 @@ exec_extract = PythonOperator(
 )
 
 
-def transform(table, **context):
-    # extract 함수에서 얻어온 data를 xcom_pull로 가져와 처리함
-    df = context['task_instance'].xcom_pull(task_ids='get_rawdata')
-
-    def preprocess(table, df):
+def transform():
+    
+    trans_={}
+    def preprocess(**context):
+        # extract 함수에서 얻어온 data를 xcom_pull로 가져와 처리함
+        table = context["params"]["table"]
+        df = context['task_instance'].xcom_pull(task_ids='get_rawdata')
         import user, track, artist
 
         if table == 'user': return user.preprocess(df)
@@ -62,21 +64,27 @@ def transform(table, **context):
         elif table == 'track': return track.preprocess(df)
         else: return None
 
-    preprocess_ = PythonOperator(
-        task_id=f'{table}_preprocess',
-        python_callable=preprocess,
-        params={'table': table, 'df': df},
-        provide_context=True,
-        dag=dag
-    )
+    for i in ['user','artist','track']:
+        
+        trans_[i] = PythonOperator(
+            task_id=f'{i}_preprocess',
+            python_callable=preprocess,
+            params={'table': i},
+            provide_context=True,
+            trigger_rule='all_success',
+            dag=dag
+        )
+    
+    return trans_
 
-    return preprocess_
 
 
-def store(table, **context):
-    df = context['task_instance'].xcom_pull(task_ids=f'{table}_preprocess')
-
-    def store_data(table, df):
+def store():
+    
+    store_ = {}
+    def store_data(**context):
+        table = context["params"]["table"]
+        df = context['task_instance'].xcom_pull(task_ids=f'{table}_preprocess')
         import user, track, artist, user_history
 
         if table == 'user': return user.store(df)
@@ -86,22 +94,22 @@ def store(table, **context):
             df = context['task_instance'].xcom_pull(task_ids='user_store')
             return user_history.store(df)
         else: return None
+    
+    for i in ['user','artist','track','user_history']:
+        store_[i] = PythonOperator(
+            task_id=f'{i}_store',
+            python_callable=store_data,
+            params={'table': i},
+            provide_context=True,
+            trigger_rule='all_success',
+            dag=dag
+        )
 
+    return store_
 
-    store_data_ = PythonOperator(
-        task_id=f'{table}_store',
-        python_callable=store_data,
-        params={'table': table, 'df': df},
-        provide_context=True,
-        trigger_rule='all_success',
-        dag=dag
-    )
-    return store_data_
+trans_ = transform()
+store_ = store()
 
-
-# for table in ['user', 'artist', 'track', 'user_history']:
-#     exec_extract >> transform(table) >> store(table)
-
-exec_extract >> transform('user') >> store('user')
-exec_extract >> transform('artist') >> store('artist') >> store('track') >> store('user_history')
-exec_extract >> transform('track')
+exec_extract >> trans_['user'] >> store_['user'] >> store_['user_history']
+exec_extract >> trans_['artist'] >> store_['artist'] >> store_['track'] >> store_['user_history']
+exec_extract >> trans_['track'] >> store_['track'] 

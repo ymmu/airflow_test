@@ -43,21 +43,17 @@ def store(df):
     saved_tracks = pd.read_sql(sql=q,
                                con=db_connection)
 
-    if not saved_tracks.empty:  # 테이블에 저장된 artist가 없을 때 (모두 새 artist일 때)
+    if not saved_tracks.empty:  # 테이블에 저장된 track이 있을 때 저장되어있는 데이터는 뺌
         print('get only new track data ..')
         mask = ~(df.record_msid.isin(list(saved_tracks.record_msid.values)))  # ~:not
-        new_artists = df.loc[mask, :]
-        print(new_artists)
+        df = df.loc[mask, :]
+        print(df)
 
-        new_artists.to_sql(name=table,
-                           con=db_connection,
-                           if_exists='append',
-                           index=False)
-    else:
-        df.to_sql(name=table,
-                  con=db_connection,
-                  if_exists='append',
-                  index=False)
+    df = df.drop_duplicates(subset=['record_msid']) # msid 중복삭제
+    df.to_sql(name=table,
+              con=db_connection,
+              if_exists='append',
+              index=False)
 
 
 if __name__ == '__main__':
@@ -70,3 +66,4 @@ if __name__ == '__main__':
     print(df)
     # df = preprocess(df)
     # store_track(df)
+
