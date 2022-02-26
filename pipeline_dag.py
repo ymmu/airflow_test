@@ -1,12 +1,11 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
+from airflow.decorators import dag, task
 from datetime import datetime
 import requests, sys
 import logging
-#from elt_pipeline.src import utils_
-#from elt_pipeline.src import user
-#import utils_
+
 
 dag = DAG(
     dag_id="xcomtest_2",
@@ -15,15 +14,26 @@ dag = DAG(
     tags=['pipeline_user_data_test']
 )
 
+# import my modules
 print(sys.path)
 sys.path.append('/opt/airflow/dags/elt_pipeline/src')
 
-#cmd_ = '''
-#    export PYTHONPATH=/opt/airflow/dags/elt_pipeline/env/bin:/opt/airflow/dags/elt_pipeline/env/lib/python3.7/site-packages'''
-#t1 = BashOperator(
-#    task_id='add_env',
-#    bash_command=cmd_
-#    )
+@task
+def get_music_data(**context):
+    from multiprocessing import Pool, cpu_count
+    import numpy as np
+    import pandas as pd
+    import spotify_
+
+    # df = context['task_instance'].xcom_pull(task_ids='get_rawdata')
+    # batch = df[['artist_name', 'track_name']].to_dict(orient='split')['data']
+    # print(batch)
+    # # global num_cores
+    # num_cores = cpu_count()
+    # with Pool(num_cores) as p:
+    #     rst = p.starmap_async(spotify_.get_track_data, batch)
+    #     print('*'*10)
+    #     pprint(rst.get())
 
 
 def extract():
@@ -40,32 +50,58 @@ exec_extract = PythonOperator(
 )
 
 
-# extract 함수에서 얻어온 data를 xcom_pull로 가져와 처리함
-def preprocess(**context):
-    import user
+def transform(table, **context):
+    # extract 함수에서 얻어온 data를 xcom_pull로 가져와 처리함
     df = context['task_instance'].xcom_pull(task_ids='get_rawdata')
-    return user.preprocess(df)
+
+    def preprocess(table, df):
+        import user, track, artist
+
+        if table == 'user': return user.preprocess(df)
+        elif table == 'artist': return artist.preprocess(df)
+        elif table == 'track': return track.preprocess(df)
+        else: return None
+
+    preprocess_ = PythonOperator(
+        task_id=f'{table}_preprocess',
+        python_callable=preprocess,
+        params={'table': table, 'df': df},
+        provide_context=True,
+        dag=dag
+    )
+
+    return preprocess_
 
 
-preprocess_ = PythonOperator(
-    task_id='preprocess',
-    python_callable=preprocess,
-    provide_context=True,
-    dag=dag
-)
+def store(table, **context):
+    df = context['task_instance'].xcom_pull(task_ids=f'{table}_preprocess')
+
+    def store_data(table, df):
+        import user, track, artist, user_history
+
+        if table == 'user': return user.store(df)
+        elif table == 'artist': return artist.store(df)
+        elif table == 'track': return track.store(df)
+        elif table == 'user_history':
+            df = context['task_instance'].xcom_pull(task_ids='user_store')
+            return user_history.store(df)
+        else: return None
 
 
-def store_data(**context):
-    import user
-    df = context['task_instance'].xcom_pull(task_ids='preprocess')
-    return user.store_user(df)
+    store_data_ = PythonOperator(
+        task_id=f'{table}_store',
+        python_callable=store_data,
+        params={'table': table, 'df': df},
+        provide_context=True,
+        trigger_rule='all_success',
+        dag=dag
+    )
+    return store_data_
 
 
-store_data_ = PythonOperator(
-    task_id='store_data',
-    python_callable=store_data,
-    provide_context=True,
-    dag=dag
-)
+# for table in ['user', 'artist', 'track', 'user_history']:
+#     exec_extract >> transform(table) >> store(table)
 
-exec_extract >> preprocess_ >> store_data_
+exec_extract >> transform('user') >> store('user')
+exec_extract >> transform('artist') >> store('artist') >> store('track') >> store('user_history')
+exec_extract >> transform('track')

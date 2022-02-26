@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import pandas as pd
 import utils_
 
@@ -22,7 +24,7 @@ def preprocess(df):
     return df
 
 
-def store(df):
+def store_artist(df):
     # 데이터를 저장하는 단계
     # 테이블에 없는 ID 테이블에 추가
 
@@ -63,6 +65,19 @@ if __name__ == '__main__':
     # print(df.head())
 
     df = utils_.get_data(test=True)
-    print(df.columns)
-    df = preprocess(df)
-    store_artist(df)
+    print(df.shape, df.columns)
+    # df = preprocess(df)
+    # store_artist(df)
+
+    # test mp ----
+    # from multiprocessing import Pool, cpu_count
+    # import spotify_
+    # batch = df[['artist_name', 'track_name']].to_dict(orient='split')['data']
+    # print(batch)
+    # # global num_cores
+    # num_cores = cpu_count()
+    # with Pool(num_cores) as p:
+    #     rst = p.starmap_async(spotify_.get_track_data, batch)
+    #     print('*'*10)
+    #     pprint(rst.get())
+

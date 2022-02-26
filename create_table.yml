@@ -1,11 +1,11 @@
 create:
   user: |
-    CREATE TABLE user(
-        uid INT(10) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-        name VARCHAR(64) NOT NULL,
-        fisrt_active_date DATETIME,
-        last_active_date DATETIME
-    )ENGINE=INNODB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        CREATE TABLE lb_user(
+         user_id BINARY(16) NOT NULL PRIMARY KEY,
+         name VARCHAR(64) NOT NULL,
+         first_active_date DATETIME,
+         last_active_date DATETIME
+        ) ENGINE=INNODB CHARSET=utf8mb4 COLLATE=UTF8MB4_UNICODE_CI;
   artist: |
     CREATE TABLE artist(
         aid varchar(32) not null,

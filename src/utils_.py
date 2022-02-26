@@ -36,7 +36,7 @@ def get_data_from_mariadb_v2(num_lines=1,
     q = f'''
     select * 
     from {table}
-    limit {begin},{begin + num_lines}
+    limit {begin},{num_lines}
     '''
     return pd.read_sql(sql=q,
                        con=db_connection,
@@ -98,6 +98,13 @@ def get_mariadb_conn(database=None):
     conn = db_connection.connect()
 
     return db_connection, conn
+
+
+def set_spotify_config():
+    import yaml,os
+    with open(os.path.join(vars_.dir_path, './config/config.yml'), mode='r') as f:
+          conf = yaml.load(f, Loader=yaml.FullLoader)['spotify']
+    os.environ.update(conf)
 
 
 def get_db_config():
