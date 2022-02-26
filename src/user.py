@@ -132,24 +132,32 @@ def store(df):
                              if_exists='append',
                              index=False)
 
-        # user history
-        # user_id 달아줌
-
-        df = df.merge(new_users, on='name', how='left')
-        print(df.columns)
-        df = df[['listened_at', 'user_id', 'name', 'recording_msid']]
-        df = df.merge(old_users, on='name', how='left')
-        print(df.columns)
-        history_ = df[['listened_at_x', 'user_id_x', 'recording_msid']]
-        history_ = history_.rename(columns={'listened_at_x': 'timestamp_',
-                                'recording_msid': 'record_msid',
-                                'user_id_x':'user_id'})
-        history_['history_id'] = [uuid.uuid4().bytes for i in range(len(df.index))]
+    
+            # user history
+            # user_id 달아줌
+            # df['user_id'] = None
+            # new_user의 id 채워넣음
+            # df['user_id'] = np.where((df.user_id == new_users.user_id) & (df.user_id.isnull() | df.user_id.isna()),
+            #                          new_users.user_id, df.user_id)
+            df = df.merge(new_users, on='name', how='left')
+            print(df.columns)
+            df = df[['listened_at', 'user_id', 'name', 'recording_msid']]
+        
+        # df['user_id'] = np.where((df.user_id == old_users.user_id) & (df.user_id.isnull() | df.user_id.isna()),
+        #                          old_users.user_id, df.user_id)
+        df = df.merge(old_users[['name','user_id']], on='name', how='left')
+        print('after merge old_users: ', df.columns)
+        if 'user_id_x' in df.columns:
+            df['user_id_x'] = np.where((df.user_id_x.isnull() | df.user_id_x.isna()),
+                                          df.user_id_y, df.user_id_x)
+            df = df.rename(columns={'user_id_x':'user_id'})
+        print(df.user_id.isnull().value_counts())
+        print(df.user_id)
+        history_ = df[['listened_at', 'user_id', 'recording_msid']]
+        history_ = history_.rename(columns={'listened_at': 'timestamp_',
+                                            'recording_msid': 'record_msid'})
+        history_['history_id'] = [uuid.uuid4().bytes for i in range(len(history_.index))]
         print(history_.head())
-        # history_.to_sql(name='lb_user_history',
-        #           con=db_connection,
-        #           if_exists='append',
-        #           index=False)
 
     return history_
 
