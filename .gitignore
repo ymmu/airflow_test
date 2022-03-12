@@ -3,6 +3,14 @@ config
 .idea
 trash
 __pycache__
-src/spotify_example.py
+#test/spotify_example.py
 src/test_offset.txt
 src/.cache
+
+test/kinesis_consumer.py
+test/kinesis_producer.py
+test/s3_upload_download.py
+
+test_venv.py
+test_venv.sh
+test/test.txt

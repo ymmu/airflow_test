@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-import vars_
+from src import vars_
 
 
 def get_data_from_mariadb_v1(num_lines=1,
@@ -63,14 +63,14 @@ def get_data(test=True):
         num_lines = randint(10, 60)  # (raw 데이터 분당 로그양에 기반해서) 랜덤으로 가져올 열
         print(begin, num_lines)
         df = get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
-        begin += (int(num_lines)-1)  # offset
+        begin += (int(num_lines) - 1)  # offset
         print(df.shape)
-        with open(os.path.join(vars_.dir_path,'./src/test_offset.txt'), mode='a', encoding='utf-8') as f:
+        with open(os.path.join(vars_.dir_path, './src/test_offset.txt'), mode='a', encoding='utf-8') as f:
             f.write(f'{begin}\n')
-       
+
         print(begin, num_lines)
         return df
-        #return get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
+        # return get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
 
     else:
         # 서버로 돌려서 던지..는건
@@ -87,10 +87,10 @@ def get_mariadb_conn(database=None):
         database = conf["database"]
 
     db_connection_str = engine.url.URL(drivername='mysql+pymysql',
-                                              username=conf["user"],
-                                              password=conf["passwd"],
-                                              host=conf["host"],
-                                              database=database)
+                                       username=conf["user"],
+                                       password=conf["passwd"],
+                                       host=conf["host"],
+                                       database=database)
 
     # 비번이나 이름에 @있으면 접속에 문제 생김
     # db_connection_str = f'mysql+pymysql://{conf["user"]}:{conf["passwd"]}@{conf["host"]}/{database}'
@@ -100,18 +100,35 @@ def get_mariadb_conn(database=None):
     return db_connection, conn
 
 
-def set_spotify_config():
-    import yaml,os
+def get_config():
+    import yaml, os
     with open(os.path.join(vars_.dir_path, './config/config.yml'), mode='r') as f:
-          conf = yaml.load(f, Loader=yaml.FullLoader)['spotify']
-    os.environ.update(conf)
+        conf = yaml.load(f, Loader=yaml.FullLoader)
+    return conf
 
 
 def get_db_config():
-    import yaml
-    with open(os.path.join(vars_.dir_path, './config/config.yml'), mode='r') as f:
-        conf = yaml.load(f, Loader=yaml.FullLoader)['mysql']
-    return conf
+    return get_config()['mysql']
+
+
+def get_s3_config():
+    return get_config()['s3']
+
+
+def get_kinesis_config():
+    return get_config()['kinesis']
+
+
+def set_spotify_config():
+    conf = get_config()['spotify']
+    os.environ.update(conf)
+
+
+def set_boto3_config():
+    conf = get_config()['boto3']
+    print(os.path.join(vars_.dir_path, conf['AWS_SHARED_CREDENTIALS_FILE']))
+    conf['AWS_SHARED_CREDENTIALS_FILE'] = os.path.join(vars_.dir_path, conf['AWS_SHARED_CREDENTIALS_FILE'])
+    os.environ.update(conf)
 
 
 def default_plot_setting():
@@ -128,7 +145,9 @@ def default_plot_setting():
         titleweight="bold",
         titlesize=16,
         titlepad=10,
+        font=''
     )
+    plt.rc('font', family='NanumGothic')
     plot_params = dict(
         color="0.75",
         style=".-",
@@ -137,5 +156,4 @@ def default_plot_setting():
     )
 
     warnings.filterwarnings('ignore')
-
     return plt, plot_params
