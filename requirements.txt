@@ -6,3 +6,4 @@ seaborn
 matplotlib
 boto3
 kinesis-python
+

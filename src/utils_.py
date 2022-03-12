@@ -3,6 +3,7 @@ import pandas as pd
 from src import vars_
 
 
+
 def get_data_from_mariadb_v1(num_lines=1,
                              begin=0,
                              database='sample',
@@ -63,6 +64,7 @@ def get_data(test=True):
         num_lines = randint(10, 60)  # (raw 데이터 분당 로그양에 기반해서) 랜덤으로 가져올 열
         print(begin, num_lines)
         df = get_data_from_mariadb_v2(begin=begin, num_lines=num_lines)
+
         begin += (int(num_lines) - 1)  # offset
         print(df.shape)
         with open(os.path.join(vars_.dir_path, './src/test_offset.txt'), mode='a', encoding='utf-8') as f:
@@ -91,6 +93,7 @@ def get_mariadb_conn(database=None):
                                        password=conf["passwd"],
                                        host=conf["host"],
                                        database=database)
+
 
     # 비번이나 이름에 @있으면 접속에 문제 생김
     # db_connection_str = f'mysql+pymysql://{conf["user"]}:{conf["passwd"]}@{conf["host"]}/{database}'
@@ -131,6 +134,7 @@ def set_boto3_config():
     os.environ.update(conf)
 
 
+
 def default_plot_setting():
     import warnings
     import matplotlib.pyplot as plt
@@ -145,9 +149,9 @@ def default_plot_setting():
         titleweight="bold",
         titlesize=16,
         titlepad=10,
-        font=''
     )
     plt.rc('font', family='NanumGothic')
+
     plot_params = dict(
         color="0.75",
         style=".-",
@@ -156,4 +160,5 @@ def default_plot_setting():
     )
 
     warnings.filterwarnings('ignore')
+
     return plt, plot_params
