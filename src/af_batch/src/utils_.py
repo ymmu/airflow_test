@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-#from af_batch import vars_
 import vars_
 
 def get_data_from_mariadb_v1(num_lines=1,
@@ -51,7 +50,7 @@ def get_data(test=True):
 
     if test:
         try:
-            with open(os.path.join(vars_.dir_path, './af_batch/test_offset.txt'),
+            with open(os.path.join(vars_.dir_path, './src/test_offset.txt'),
                       encoding='utf-8') as f:
                 begin = int(f.readlines()[-1])
         except Exception as e:
@@ -66,7 +65,7 @@ def get_data(test=True):
 
         begin += (int(num_lines) - 1)  # offset
         print(df.shape)
-        with open(os.path.join(vars_.dir_path, './af_batch/test_offset.txt'), mode='a', encoding='utf-8') as f:
+        with open(os.path.join(vars_.dir_path, './src/test_offset.txt'), mode='a', encoding='utf-8') as f:
             f.write(f'{begin}\n')
 
         print(begin, num_lines)
@@ -128,7 +127,6 @@ def set_spotify_config():
 
 def set_boto3_config():
     conf = get_config()['boto3']
-    print(os.path.join(vars_.dir_path, conf['AWS_SHARED_CREDENTIALS_FILE']))
     conf['AWS_SHARED_CREDENTIALS_FILE'] = os.path.join(vars_.dir_path, conf['AWS_SHARED_CREDENTIALS_FILE'])
     os.environ.update(conf)
 

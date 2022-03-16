@@ -1,5 +1,5 @@
 from pprint import pprint
-import spotipy, os
+import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import utils_
 

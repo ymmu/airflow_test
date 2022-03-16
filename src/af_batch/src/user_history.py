@@ -1,4 +1,3 @@
-import pandas as pd
 import utils_
 
 table = 'lb_user_history'

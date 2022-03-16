@@ -1,14 +1,4 @@
-import sys, glob, os
-from datetime import datetime
-import multiprocessing as mp
-import warnings
-import pymysql
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 import pandas as pd
-import uuid
 import utils_
 
 table = 'lb_track'
@@ -21,7 +11,6 @@ def preprocess(df):
     df = df[['track_name', 'recording_msid', 'artist_msid']]
     df = df.rename(columns={'recording_msid': 'record_msid',
                             'track_name': 'name'})
-
     return df
 
 
