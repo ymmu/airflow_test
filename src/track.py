@@ -21,7 +21,6 @@ def preprocess(df):
     df = df[['track_name', 'recording_msid', 'artist_msid']]
     df = df.rename(columns={'recording_msid': 'record_msid',
                             'track_name': 'name'})
-
     return df
 
 

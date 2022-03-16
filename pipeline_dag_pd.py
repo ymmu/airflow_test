@@ -18,8 +18,8 @@ ELT 처리 순서를 되도록 명확하게 보이고자
 dag = DAG(
     dag_id="xcomtest_2",
     start_date=datetime(2021, 2, 25),
-    # schedule_interval='10 * * * *',
-    tags=['pipeline_user_data_test']
+    # schedule_interval='*/10 * * * *',
+    tags=['lb_pipeline_pd_test']
 )
 
 # import my modules

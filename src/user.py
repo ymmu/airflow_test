@@ -115,8 +115,6 @@ def store(df):
 
         # new user 작업
         new_users = df[df.name.isin(old_users.name.values) == False][['name', 'listened_at']]
-        # print('new:')
-        # print(new_users)
         if not new_users.empty:
             new_users = set_new_user(new_users)
             new_users['user_id'] = [uuid.uuid5(uuid.NAMESPACE_OID,
@@ -132,7 +130,6 @@ def store(df):
                              if_exists='append',
                              index=False)
 
-    
             # user history
             # user_id 달아줌
             # df['user_id'] = None
@@ -140,7 +137,7 @@ def store(df):
             # df['user_id'] = np.where((df.user_id == new_users.user_id) & (df.user_id.isnull() | df.user_id.isna()),
             #                          new_users.user_id, df.user_id)
             df = df.merge(new_users, on='name', how='left')
-            print(df.columns)
+            # print(df.columns)
             df = df[['listened_at', 'user_id', 'name', 'recording_msid']]
         
         # df['user_id'] = np.where((df.user_id == old_users.user_id) & (df.user_id.isnull() | df.user_id.isna()),
