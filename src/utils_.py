@@ -109,6 +109,15 @@ def get_config():
     return conf
 
 
+def get_kafka_config():
+    return get_config()['kafka']
+
+
+def get_zookeeper_config():
+    return get_config()['zookeeper']
+
+
+
 def get_db_config():
     return get_config()['mysql']
 

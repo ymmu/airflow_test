@@ -9,9 +9,12 @@
 
   - Airflow
   - Kafka, AWS:Kinesis
+  - Spark, fluentd
   - GCP:BigQuery, DataStudio
+  - Kibana
   - DB
     - MariaDB
+    - ES
   - Storage
     - S3
 
@@ -21,5 +24,6 @@
 1. Airflow를 이용한 데이터 batch 데이터 ELT 작업
    - EDA 등 데이터 분석 포함
    - Data: [ListenBrainz](https://listenbrainz.org/data/)
-2. (작업중) DB 트랜잭션 log를 이용해 Data Lake 생성
-3. (작업중) Kafka로 여러 가지 데이터를 받아 s3에 저장
+2. (작업중) Kafka로 여러 가지 데이터를 받아 s3에 저장
+   - 
+   - 파이프라인 설계
