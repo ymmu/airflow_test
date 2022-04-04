@@ -42,8 +42,8 @@ def register_rides_source(st_env):
             .version("universal")
             .topic("transactions-data")
             .start_from_earliest()
-            .property("zookeeper.connect", f'{z_conf["host"]}:{z_conf["port"]}')
-            .property("bootstrap.servers", f'{k_conf["host"]}:{k_conf["port"]}')) \
+            .property("zookeeper.connect", f'{z_conf["host_1"]}')
+            .property("bootstrap.servers", f'{k_conf["host_1"]}')) \
         .with_format(  # declare a format for this system
         Json()
             .fail_on_missing_field(True)
@@ -84,7 +84,7 @@ def kafka_source(st_env):
     )WITH (
         'connector' = 'kafka',
         'topic' = 'transactions-data',
-        'properties.bootstrap.servers' = '{k_conf["host"]}:{k_conf["port"]}',
+        'properties.bootstrap.servers' = '{k_conf["host_1"]}',
         'scan.startup.mode' = 'earliest-offset',
         'format' = 'json'
     )
@@ -105,7 +105,7 @@ def es_sink(st_env):
         transaction_datetime TIMESTAMP
     )WITH (
         'connector' = 'elasticsearch-7',
-        'hosts' = 'http://{es_conf["host"]}:{es_conf["port"]}',
+        'hosts' = 'http://{es_conf["host_1"]}',
         'index' = 'transaction-data',
         'username' = '{es_conf["user"]}',
         'password' = '{es_conf["passwd"]}'
@@ -120,8 +120,8 @@ def register_rides_sink(st_env):
         Kafka()
             .version("universal")
             .topic("TempResults")
-            .property("zookeeper.connect", f"{z_conf['host']}:{z_conf['port']}")
-            .property("bootstrap.servers", f"{k_conf['host']}:{k_conf['port']}")) \
+            .property("zookeeper.connect", f"{z_conf['host_1']}")
+            .property("bootstrap.servers", f"{k_conf['host_1']}")) \
         .with_format(  # declare a format for this system
         Json()
             .fail_on_missing_field(True)

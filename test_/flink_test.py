@@ -57,10 +57,10 @@ users = generate_random_users()
 end_datetime = datetime.datetime.combine(datetime.date(2070, 1, 1), datetime.time(1, 0, 0))
 current_datetime = datetime.datetime.combine(datetime.date.today(), datetime.datetime.now().time())
 
-conf = utils_.get_kafka_config()
+k_conf = utils_.get_kafka_config()
 while current_datetime <= end_datetime:
     data_usage = pd.DataFrame([create_usage_record(users) for _ in range(1000)])
-    producer = KafkaProducer(bootstrap_servers=[f'{conf["host"]}:{conf["port"]}'],
+    producer = KafkaProducer(bootstrap_servers=[f'{k_conf["host_1"]}'],
                              value_serializer=lambda x: dumps(x).encode('utf-8'))
 
     for row in data_usage.itertuples():
