@@ -8,18 +8,20 @@
 ### Stack
 
   - Airflow
-  - Kafka, AWS:Kinesis
-  - GCP:BigQuery, DataStudio
+  - Kafka
+  - Spark, Fluentd, Flink
+  - GCP:BigQuery(질의), DataStudio
+  - Kibana
   - DB
     - MariaDB
+    - ES
   - Storage
     - S3
 
 ---
 
 작업 리스트
-1. Airflow를 이용한 데이터 batch 데이터 ELT 작업
+1. Airflow를 이용한 batch ELT/ETL 작업
    - EDA 등 데이터 분석 포함
    - Data: [ListenBrainz](https://listenbrainz.org/data/)
-2. (작업중) DB 트랜잭션 log를 이용해 Data Lake 생성
-3. (작업중) Kafka로 여러 가지 데이터를 받아 s3에 저장
+2. Bigdata 파이프라인 작업

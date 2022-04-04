@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 #from af_batch import vars_
-import vars_
+from src import vars_
 
 def get_data_from_mariadb_v1(num_lines=1,
                              begin=0,
@@ -107,6 +107,18 @@ def get_config():
     with open(os.path.join(vars_.dir_path, './config/config.yml'), mode='r') as f:
         conf = yaml.load(f, Loader=yaml.FullLoader)
     return conf
+
+
+def get_kafka_config():
+    return get_config()['kafka']
+
+
+def get_zookeeper_config():
+    return get_config()['zookeeper']
+
+
+def get_es_config():
+    return get_config()['es']
 
 
 def get_db_config():

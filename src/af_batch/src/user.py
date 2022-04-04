@@ -7,7 +7,6 @@ table = 'lb_user'
 
 
 def preprocess(df):
-    # 멀티프로세스 이용.
     df['timestamp'] = pd.to_datetime(df.listened_at)
     df = df.set_index('timestamp')
     df = df.rename(columns={'user_name': 'name'})
