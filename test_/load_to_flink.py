@@ -3,6 +3,7 @@ from pyflink.datastream import StreamExecutionEnvironment, TimeCharacteristic
 from pyflink.table import StreamTableEnvironment, CsvTableSink, DataTypes, EnvironmentSettings
 from pyflink.table.descriptors import Schema, Rowtime, Json, Kafka, Elasticsearch
 from pyflink.table.window import Tumble
+from pyflink.table.expressions import col, lit
 from src import utils_
 
 k_conf = utils_.get_kafka_config()
@@ -25,7 +26,7 @@ def register_transactions_source(st_env):
                             DataTypes.FIELD("in_store_payment_amount", DataTypes.DOUBLE()),
                             DataTypes.FIELD("lat", DataTypes.DOUBLE()),
                             DataTypes.FIELD("lon", DataTypes.DOUBLE()),
-                            DataTypes.FIELD("transaction_datetime", DataTypes.TIMESTAMP())]))) \
+                            DataTypes.FIELD("transaction_datetime", DataTypes.TIMESTAMP(3))]))) \
         .with_schema(Schema()
                     .field("customer", DataTypes.STRING())
                     .field("transaction_type", DataTypes.STRING())
@@ -33,12 +34,12 @@ def register_transactions_source(st_env):
                     .field("in_store_payment_amount", DataTypes.DOUBLE())
                     .field("lat", DataTypes.DOUBLE())
                     .field("lon", DataTypes.DOUBLE())
-                    .field("rowtime", DataTypes.TIMESTAMP())
+                    .field("rowtime", DataTypes.TIMESTAMP(3))
         .rowtime(Rowtime()
                 .timestamps_from_field("transaction_datetime")
                 .watermarks_periodic_bounded(60000))) \
         .in_append_mode() \
-        .register_table_source("source")
+        .create_temporary_table("source")
 
 
 
@@ -47,23 +48,41 @@ def register_transactions_sink_into_csv(st_env):
     result_file = "./output_file.csv"
     if os.path.exists(result_file):
         os.remove(result_file)
-    st_env.register_table_sink("sink_into_csv",
-                               CsvTableSink(["customer",
-                                             "count_transactions",
-                                             "total_online_payment_amount",
-                                             "total_in_store_payment_amount",
-                                             "lat",
-                                             "lon",
-                                             "last_transaction_time"],
-                                            [DataTypes.STRING(),
-                                             DataTypes.DOUBLE(),
-                                             DataTypes.DOUBLE(),
-                                             DataTypes.DOUBLE(),
-                                             DataTypes.DOUBLE(),
-                                             DataTypes.DOUBLE(),
-                                             DataTypes.TIMESTAMP()],
-                                            result_file))
 
+        # Register Sink
+    st_env.execute_sql("""
+            CREATE TABLE mySink (
+              customer STRING,
+              count_transactions BIGINT,
+              total_online_payment_amount BIGINT,
+              total_in_store_payment_amount BIGINT,
+              lat BIGINT,              
+              lon BIGINT,              
+              last_transaction_time TIMESTAMP
+            ) WITH (
+              'connector' = 'filesystem',
+              'format' = 'csv',
+              'path' = '/tmp/result',
+              'sink.rolling-policy.rollover-interval' = '10s'
+            )
+        """)
+    
+    '''
+    st_env.create_temporary_table("sink",
+            TableDescriptor.for_connector('filesystem')
+            .schema(Schema.new_builder()
+                .column("customer", DataTypes.STRING())
+                .column("count_transactions", DataTypes.DOUBLE())               
+                .column("total_online_payment_amount", DataTypes.DOUBLE())               
+                .column("total_in_store_payment_amount", DataTypes.DOUBLE())               
+                .column("lat", DataTypes.DOUBLE())               
+                .column("lon", DataTypes.DOUBLE())               
+                .column("last_transaction_time", DataTypes.TIMESTAMP(3))
+                .bould())
+            .option('path', result_file)
+            .format(FormatDescriptor.for_format('canal-json').build())
+            .build())
+    '''
 
 def transactions_job():
     # 환경 먼저
@@ -89,27 +108,15 @@ def transactions_job():
     register_transactions_source(st_env)
     register_transactions_sink_into_csv(st_env)
 
+    '''
     st_env.from_path("source") \
         .window(Tumble.over("10.hours").on("rowtime").alias("w")) \
         .group_by("customer, w") \
-        .select("""customer as customer, 
-                   count(transaction_type) as count_transactions,
-                   sum(online_payment_amount) as total_online_payment_amount, 
-                   sum(in_store_payment_amount) as total_in_store_payment_amount,
-                   last(lat) as lat,
-                   last(lon) as lon,
-                   w.end as last_transaction_time
-                   """) \
-        .filter("total_online_payment_amount<total_in_store_payment_amount") \
-        .filter("count_transactions>=3") \
-        .filter("lon < 20.62") \
-        .filter("lon > 20.20") \
-        .filter("lat < 44.91") \
-        .filter("lat > 44.57") \
+        .select(col('customer')) \
         .execute_insert("sink_into_csv")
 
     st_env.execute_sql("app")
-
+    '''
 
 if __name__ == '__main__':
     transactions_job()

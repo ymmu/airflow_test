@@ -1,9 +1,8 @@
 import argparse
 from pprint import pprint
-import src.notion_extractor as ne
 import unittest
 import os
-
+from test_ import load_to_flink
 
 class CustomTests(unittest.TestCase):
 
@@ -16,7 +15,7 @@ class CustomTests(unittest.TestCase):
         pass
 
     def test_load_to_flink(self):
-        from test import load_to_flink
+        #from test import load_to_flink
         load_to_flink.transactions_job()
 
 

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 #from af_batch import vars_
-import vars_
+from src import vars_
 
 def get_data_from_mariadb_v1(num_lines=1,
                              begin=0,
