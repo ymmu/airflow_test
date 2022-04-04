@@ -1,10 +1,11 @@
 import os
 from pyflink.datastream import StreamExecutionEnvironment, TimeCharacteristic
-from pyflink.table import StreamTableEnvironment, CsvTableSink, DataTypes, EnvironmentSettings
+from pyflink.table import StreamTableEnvironment, CsvTableSink, DataTypes, EnvironmentSettings, TableDescriptor
 from pyflink.table.descriptors import Schema, Rowtime, Json, Kafka, Elasticsearch
 from pyflink.table.window import Tumble
 from pyflink.table.expressions import col, lit
 from src import utils_
+
 
 k_conf = utils_.get_kafka_config()
 z_conf = utils_.get_zookeeper_config()

@@ -117,6 +117,9 @@ def get_zookeeper_config():
     return get_config()['zookeeper']
 
 
+def get_es_config():
+    return get_config()['es']
+
 
 def get_db_config():
     return get_config()['mysql']
