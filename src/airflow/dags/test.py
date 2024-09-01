@@ -5,10 +5,6 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
 
-_current_path: str = Variable.get("airflow_base_path")
-with open(f"{_current_path}/include/json/t1_thirdparty/csv_etl/table_infos.json", "r") as file:
-    t1_s3_csv_table_list: json = json.load(file)
-
 default_args = {
     'owner': 'data_dev',
     'depends_on_past': False,
